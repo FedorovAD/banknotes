@@ -1,5 +1,5 @@
 # banknotes
-  A program that allows you to calculate the possibility of issuing a certain amount of money
+  Программа позволяющая рассчитать возможность выдачи определенной суммы на основе имеющихся в банкомате купюр.
 # Как запустить приложение
   Чтобы запустить сервер достаточно написать в консоли: go run main.go
   
