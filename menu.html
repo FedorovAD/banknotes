@@ -48,12 +48,22 @@
                 alert("Введите корректную сумму (целое число больше 0)");
                 return;
             }
+            if (isNaN(amount) || amount > 1000000000) {
+                alert("Слишком большая сумма, превышено ограничение в 1'000'000'000");
+                return;
+            }
             
             const cassettes = [];
+            isWrong = false
             document.querySelectorAll("#cassettes div").forEach(div => {
                 const countValue = div.querySelector(".count").value;
                 if (countValue === "" || isNaN(parseInt(countValue, 10))) {
                     alert("Введите корректное количество банкнот (целое число)");
+                    return;
+                }
+                if (countValue === "" || isNaN(parseInt(countValue, 10)) || parseInt(countValue, 10) > 1000000000){
+                    alert("Число банкнот в кассете превышает 1'000'000'000");
+                    isWrong = true
                     return;
                 }
                 cassettes.push({
@@ -63,10 +73,13 @@
                     is_working: div.querySelector(".is_working").checked
                 });
             });
-            
-            if (cassettes.length < 1) {
+
+            if (cassettes.length < 1 && !isWrong) {
                 alert("Минимальное количество кассет - 1");
                 return;
+            }
+            if (isWrong){
+                return
             }
             
             fetch("http://localhost:8080/calculate", {

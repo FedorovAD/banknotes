@@ -51,38 +51,53 @@ type CassetteOutput struct {
 }
 
 func calculateCash(amount int, cassettes []Cassette) ([]CassetteOutput, bool) {
+	calcFactor := 100
+	var result []CassetteOutput
+	target := amount / calcFactor
+	if amount%calcFactor != 0 {
+		return result, false
+	}
+	totalSum := 0
+	for _, i := range cassettes {
+		if i.IsWorking {
+			totalSum += (i.Denomination / calcFactor) * i.Count
+		}
+	}
+	if totalSum < target {
+		return result, false
+	}
 
-	minNotes := make([]int, amount+1)
-	for i := 1; i <= amount; i++ {
+	minNotes := make([]int, target+1)
+	for i := 1; i <= target; i++ {
 		minNotes[i] = -1
 	}
 	minNotes[0] = 0
 
-	usedNotes := make([]map[int]int, amount+1)
+	usedNotes := make([]map[int]int, target+1)
 	for i := range usedNotes {
 		usedNotes[i] = make(map[int]int)
 	}
 
 	denomByNumber := make(map[int]int)
 	for _, cas := range cassettes {
-		denomByNumber[cas.Number] = cas.Denomination
+		denomByNumber[cas.Number] = cas.Denomination / calcFactor
 	}
 
 	denomToCassettes := make(map[int][]Cassette)
 	for _, cas := range cassettes {
 		if cas.IsWorking && cas.Count > 0 {
-			denomToCassettes[cas.Denomination] = append(denomToCassettes[cas.Denomination], cas)
+			denomToCassettes[cas.Denomination/calcFactor] = append(denomToCassettes[cas.Denomination/calcFactor], cas)
 		}
 	}
 
-	for sum := 0; sum < amount; sum++ {
+	for sum := 0; sum < target; sum++ {
 		if minNotes[sum] == -1 {
 			continue
 		}
 
 		for denom, cassetteList := range denomToCassettes {
 			newSum := sum + denom
-			if newSum > amount {
+			if newSum > target {
 				continue
 			}
 
@@ -110,16 +125,15 @@ func calculateCash(amount int, cassettes []Cassette) ([]CassetteOutput, bool) {
 		}
 	}
 
-	if minNotes[amount] == -1 {
+	if minNotes[target] == -1 {
 		return nil, false
 	}
 
-	var result []CassetteOutput
-	for num, count := range usedNotes[amount] {
+	for num, count := range usedNotes[target] {
 		if count > 0 {
 			result = append(result, CassetteOutput{
 				Number:       num,
-				Denomination: denomByNumber[num],
+				Denomination: denomByNumber[num] * calcFactor,
 				Count:        count,
 			})
 		}
